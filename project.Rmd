@@ -1,0 +1,93 @@
+---
+title: "Stock Price Analysis"
+author: "Julja Eco"
+date: "2022-11-17"
+output:
+  pdf_document: default
+  html_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r stock}
+library(tidyverse)
+library(readr)
+dollarExchange <- read_csv("C:/Users/ecoju/OneDrive/Desktop/SCHOOL/STAT 482/Exchange_Rate_Report.csv")
+  
+euroExchangeRate <- dollarExchange |>
+  select(Date | euro) %>%
+  drop_na()
+ 
+inc <- euroExchangeRate$euro[-1]-head(euroExchangeRate$euro,-1)
+fit <- glm(inc ~ head(euroExchangeRate$euro,-1))
+thetaHat <- -fit$coefficients[2]
+muHat <- fit$coefficients[1]/thetaHat
+sigmaHat <- sigma(fit) 
+
+set.seed(1203467)
+
+OUeuro <- c()
+OUeuro[1] <- euroExchangeRate$euro[1]
+
+for(i in 2:length(euroExchangeRate$Date))
+  OUeuro[i] <- OUeuro[i-1]+thetaHat*(muHat-OUeuro[i-1])+sigmaHat*rnorm(1)
+
+plot(as.Date(euroExchangeRate$Date), euroExchangeRate$euro, type="l", lty=1, 
+     lwd=2, col=3, ylim=c(0.8,1.3), xlab="Time", ylab="$ per Euro",main="Euro 
+     to US Dollar Exchange Rate", first.panel=grid())
+lines(as.Date(euroExchangeRate$Date), OUeuro, lwd=2, col=4)
+legend("topright", c("Actual rate", "Simulated rate"), lty=1, col=3:4, cex=0.5)
+
+
+yenExchangeRate <- dollarExchange |>
+  select(Date | yen) %>%
+  drop_na()
+  
+incy <- yenExchangeRate$yen[-1]-head(yenExchangeRate$yen,-1)
+fity <- glm(incy ~ head(yenExchangeRate$yen,-1))
+thetaHaty <- -fity$coefficients[2]
+muHaty <- fity$coefficients[1]/thetaHaty
+sigmaHaty <- sigma(fity)
+
+OUyen <- c()
+OUyen[1] <- yenExchangeRate$yen[1]
+
+set.seed(12034567)
+
+for(i in 2:length(yenExchangeRate$Date))
+  OUyen[i] <- OUyen[i-1]+thetaHaty*(muHaty-OUyen[i-1])+sigmaHaty*rnorm(1)
+
+plot(as.Date(yenExchangeRate$Date), yenExchangeRate$yen, type="l", lty=1, lwd=2,
+     col=3, ylim=c(95,160), xlab="Time", ylab="Yen per $",main="Yen to US Dollar
+     Exchange Rate", first.panel=grid())
+lines(as.Date(yenExchangeRate$Date), OUyen, lwd=2, col=4)
+legend("topright", c("Actual rate", "Simulated rate"), lty=1, col=3:4, cex=0.5)
+
+poundExchangeRate <- dollarExchange |>
+  select(Date | pound) %>%
+  drop_na()
+
+incp <- poundExchangeRate$pound[-1]-head(poundExchangeRate$pound,-1)
+fitp <- glm(incp ~ head(poundExchangeRate$pound,-1))
+thetaHatp <- -fitp$coefficients[2]
+muHatp <- fitp$coefficients[1]/thetaHatp
+sigmaHatp <- sigma(fitp)
+
+set.seed(1203546)
+
+OUpound <- c()
+OUpound[1] <- poundExchangeRate$pound[1]
+
+for(i in 2:length(poundExchangeRate$Date))
+  OUpound[i] <- OUpound[i-1]+thetaHatp*(muHatp-OUpound[i-1])+sigmaHatp*rnorm(1)
+
+plot(as.Date(poundExchangeRate$Date), poundExchangeRate$pound, type="l", lty=1, 
+     lwd=2, col=3, ylim=c(1,1.5),xlab="Time", ylab="$ per Pound", main="Pound 
+     to US Dollar Exchange Rate", first.panel=grid())
+lines(as.Date(poundExchangeRate$Date), OUpound, lwd=2, col=4)
+legend("topright", c("Actual rate", "Simulated rate"), lty=1, col=3:4, cex=0.5)
+``` 
+
+
